@@ -12,27 +12,31 @@ namespace AutoProxy
 {
     public partial class AutoProxySetting : Form
     {
-        public AutoProxySetting()
-        {
+        public AutoProxySetting() {
             InitializeComponent();
         }
 
-        private void ProxyEnable(object sender, EventArgs e)
-        {
-            Microsoft.Win32.RegistryKey regkey =
-                Microsoft.Win32.Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings", true);
-            regkey.SetValue("ProxyEnable", 1);
-
-            regkey.Close();
+        private void ProxyEnable(object sender, EventArgs e) {
+            SetReg_ProxyEnable(true);
         }
 
-        private void btnProxyDisable_Click(object sender, EventArgs e)
+        private void btnProxyDisable_Click(object sender, EventArgs e) {
+            SetReg_ProxyEnable(false);
+        }
+
+        private Boolean SetReg_ProxyEnable(Boolean flag)
         {
+            const int ProxyEnable   = 1;
+            const int ProxyDisable  = 0;
+
+            int iProxyEnable = (flag == true) ? ProxyEnable : ProxyDisable;
+
             Microsoft.Win32.RegistryKey regkey =
                 Microsoft.Win32.Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings", true);
-            regkey.SetValue("ProxyEnable", 0);
+            regkey.SetValue("ProxyEnable", iProxyEnable, Microsoft.Win32.RegistryValueKind.DWord);
 
             regkey.Close();
+            return true;
         }
     }
 }
