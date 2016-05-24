@@ -38,5 +38,25 @@ namespace AutoProxy
             regkey.Close();
             return true;
         }
+
+        private Boolean SetReg_ProxyServer(String ServerAddr)
+        {
+            Microsoft.Win32.RegistryKey regkey =
+                Microsoft.Win32.Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings", true);
+            regkey.SetValue("ProxyServer", ServerAddr, Microsoft.Win32.RegistryValueKind.String);
+
+            regkey.Close();
+            return true;
+        }
+
+        private Boolean SetReg_ProxyOverride(String Addr)
+        {
+            Microsoft.Win32.RegistryKey regkey =
+                Microsoft.Win32.Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings", true);
+            regkey.SetValue("ProxyOverride", Addr, Microsoft.Win32.RegistryValueKind.String);
+
+            regkey.Close();
+            return true;
+        }
     }
 }
