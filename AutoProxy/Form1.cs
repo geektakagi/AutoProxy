@@ -22,6 +22,13 @@ namespace AutoProxy
             System.Net.NetworkInformation.NetworkChange.NetworkAvailabilityChanged +=
                 new System.Net.NetworkInformation.NetworkAvailabilityChangedEventHandler(
                 NetworkChange_NetworkAvailabilityChanged);
+
+            Debug.Listeners.Add(new TextWriterTraceListener(Console.Out));
+
+            Debug.WriteLine("[Connected Network SSIDs]");
+            string[] SSID = NativeWifi.GetConnectedNetworkSsids().ToArray();
+            Debug.WriteLine(SSID[0]);
+
         }
 
         protected override void WndProc(ref Message m)
@@ -56,9 +63,6 @@ namespace AutoProxy
 
                 Debug.Listeners.Add(new TextWriterTraceListener(Console.Out));
 
-                Debug.WriteLine("[Available Network SSIDs]");
-                NativeWifi.GetAvailableNetworkSsids().ToArray();
-
                 Debug.WriteLine("[Connected Network SSIDs]");
                 NativeWifi.GetConnectedNetworkSsids().ToArray();
             }
@@ -86,6 +90,7 @@ namespace AutoProxy
         private void settingToolStripMenuItem_Click(object sender, EventArgs e)
         {
             WindowState = FormWindowState.Normal;
+            ShowInTaskbar = true;
         }
 
         #region "Functions"
