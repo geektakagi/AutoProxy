@@ -37,52 +37,6 @@ namespace AutoProxy
             base.WndProc(ref m);
         }
 
-        private void ProxyEnable(object sender, EventArgs e) {
-            SetReg_ProxyEnable(true);
-        }
-
-        private void btnProxyDisable_Click(object sender, EventArgs e) {
-            SetReg_ProxyEnable(false);
-        }
-
-        private Boolean SetReg_ProxyEnable(Boolean flag) {
-            const int ProxyEnable   = 1;
-            const int ProxyDisable  = 0;
-
-            int iProxyEnable = (flag == true) ? ProxyEnable : ProxyDisable;
-
-            Microsoft.Win32.RegistryKey regkey =
-                Microsoft.Win32.Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings", true);
-            regkey.SetValue("ProxyEnable", iProxyEnable, Microsoft.Win32.RegistryValueKind.DWord);
-
-            regkey.Close();
-            return true;
-        }
-
-        private Boolean SetReg_ProxyServer(String ServerAddr) {
-            Microsoft.Win32.RegistryKey regkey =
-                Microsoft.Win32.Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings", true);
-            regkey.SetValue("ProxyServer", ServerAddr, Microsoft.Win32.RegistryValueKind.String);
-
-            regkey.Close();
-            return true;
-        }
-
-        private Boolean SetReg_ProxyOverride(String Addr) {
-            Microsoft.Win32.RegistryKey regkey =
-                Microsoft.Win32.Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings", true);
-            regkey.SetValue("ProxyOverride", Addr, Microsoft.Win32.RegistryValueKind.String);
-
-            regkey.Close();
-            return true;
-        }
-
-        private void InTasktray()
-        {
-            ShowInTaskbar = false;
-            WindowState = FormWindowState.Minimized;
-        }
-
         private void NetworkChange_NetworkAvailabilityChanged(
             object sender, System.Net.NetworkInformation.NetworkAvailabilityEventArgs e)
         {
@@ -99,15 +53,28 @@ namespace AutoProxy
             if (e.IsAvailable)
             {
                 this.Text = "ネットワーク接続が有効になりました。";
-                if (!Debugger.IsAttached)
-                    Debug.Listeners.Add(new TextWriterTraceListener(Console.Out));
 
+                Debug.Listeners.Add(new TextWriterTraceListener(Console.Out));
+
+                Debug.WriteLine("[Available Network SSIDs]");
+                NativeWifi.GetAvailableNetworkSsids().ToArray();
+
+                Debug.WriteLine("[Connected Network SSIDs]");
+                NativeWifi.GetConnectedNetworkSsids().ToArray();
             }
 
             else
             {
                 this.Text = "ネットワーク接続が無効になりました。";
             }
+        }
+
+        private void ProxyEnable(object sender, EventArgs e) {
+            SetReg_ProxyEnable(true);
+        }
+
+        private void btnProxyDisable_Click(object sender, EventArgs e) {
+            SetReg_ProxyEnable(false);
         }
 
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
@@ -120,5 +87,50 @@ namespace AutoProxy
         {
             WindowState = FormWindowState.Normal;
         }
+
+        #region "Functions"
+
+        private void InTasktray()
+        {
+            ShowInTaskbar = false;
+            WindowState = FormWindowState.Minimized;
+        }
+
+        private Boolean SetReg_ProxyEnable(Boolean flag)
+        {
+            const int ProxyEnable = 1;
+            const int ProxyDisable = 0;
+
+            int iProxyEnable = (flag == true) ? ProxyEnable : ProxyDisable;
+
+            Microsoft.Win32.RegistryKey regkey =
+                Microsoft.Win32.Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings", true);
+            regkey.SetValue("ProxyEnable", iProxyEnable, Microsoft.Win32.RegistryValueKind.DWord);
+
+            regkey.Close();
+            return true;
+        }
+
+        private Boolean SetReg_ProxyServer(String ServerAddr)
+        {
+            Microsoft.Win32.RegistryKey regkey =
+                Microsoft.Win32.Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings", true);
+            regkey.SetValue("ProxyServer", ServerAddr, Microsoft.Win32.RegistryValueKind.String);
+
+            regkey.Close();
+            return true;
+        }
+
+        private Boolean SetReg_ProxyOverride(String Addr)
+        {
+            Microsoft.Win32.RegistryKey regkey =
+                Microsoft.Win32.Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings", true);
+            regkey.SetValue("ProxyOverride", Addr, Microsoft.Win32.RegistryValueKind.String);
+
+            regkey.Close();
+            return true;
+        }
+
+        #endregion
     }
 }
