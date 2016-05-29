@@ -1,99 +1,157 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Diagnostics;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
-using System.Runtime.InteropServices;
+using System.Windows.Forms;
 
 namespace AutoProxy
 {
-    class Setting
+    public partial class AutoProxySetting : Form
     {
-        public string sSSID;
-        public string sProxyServerAddr;
-        public string sPort;
 
-        public Setting(string SSID)
-        {
-            IniFile ini = new IniFile("./servers.ini");
+        public AutoProxySetting() {
+            InitializeComponent();
+            InTasktray();
 
-            sSSID = SSID;
-            sProxyServerAddr = ini[sSSID, "server"];
-            sPort = ini[sSSID, "port"];
+            System.Net.NetworkInformation.NetworkChange.NetworkAvailabilityChanged +=
+                new System.Net.NetworkInformation.NetworkAvailabilityChangedEventHandler(
+                NetworkChange_NetworkAvailabilityChanged);
+
+            Debug.Listeners.Add(new TextWriterTraceListener(Console.Out));
+
+            Debug.WriteLine("[Connected Network SSIDs]");
+            string[] SSID = NativeWifi.GetConnectedNetworkSsids().ToArray();
+
+            ApplyProxySettingsToSystem(SSID[0]);
+
         }
 
-        private bool OverwriteSetting(string key, string value)
+        protected override void WndProc(ref Message m)
         {
-            IniFile ini = new IniFile("./servers.ini");
-            ini[sSSID, key] = value;
+            const int WM_SYSCOMMAND = 0x112;
+            const long SC_CLOSE = 0xF060L;
+
+            if (m.Msg == WM_SYSCOMMAND && (m.WParam.ToInt64() & 0xFFF0L) == SC_CLOSE) {
+                InTasktray();
+                return;
+            }
+
+            base.WndProc(ref m);
+        }
+
+        private void NetworkChange_NetworkAvailabilityChanged(
+            object sender, System.Net.NetworkInformation.NetworkAvailabilityEventArgs e)
+        {
+            //Invokeが必要か確認し、必要であればInvokeを呼び出す
+            if (this.InvokeRequired)
+            {
+                System.Net.NetworkInformation.NetworkAvailabilityChangedEventHandler dlgt =
+                    new System.Net.NetworkInformation.NetworkAvailabilityChangedEventHandler(
+                        NetworkChange_NetworkAvailabilityChanged);
+                this.Invoke(dlgt, new object[] { sender, e });
+                return;
+            }
+
+            if (e.IsAvailable)
+            {
+                this.Text = "ネットワーク接続が有効になりました。";
+
+                Debug.Listeners.Add(new TextWriterTraceListener(Console.Out));
+
+                Debug.WriteLine("[Connected Network SSIDs]");
+                NativeWifi.GetConnectedNetworkSsids().ToArray();
+            }
+
+            else
+            {
+                this.Text = "ネットワーク接続が無効になりました。";
+            }
+        }
+
+        #region "formProc"
+
+        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            notifyIcon1.Visible = false;
+            Application.Exit();
+        }
+
+        private void settingToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            WindowState = FormWindowState.Normal;
+            ShowInTaskbar = true;
+            this.Activate();
+        }
+
+        private void btnOK_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        #endregion
+
+        #region "Functions"
+
+        private void InTasktray()
+        {
+            ShowInTaskbar = false;
+            WindowState = FormWindowState.Minimized;
+        }
+
+        private Boolean ApplyProxySettingsToSystem(String SSID)
+        {
+            SettingInfo s = new SettingInfo(SSID);
+
+            SetReg_ProxyEnable(true);
+            SetReg_ProxyServer(s.sProxyServerAddr + ":" + s.sPort);
+            // SetReg_ProxyOverride();
+            SetReg_ProxyEnable(true);
 
             return true;
         }
-    }
 
-
-    /// <summary>
-    /// INIファイルを読み書きするクラス
-    /// </summary>
-    public class IniFile
-    {
-        [DllImport("kernel32.dll")]
-        private static extern int GetPrivateProfileString(
-        string lpApplicationName,
-        string lpKeyName,
-        string lpDefault,
-        StringBuilder lpReturnedstring,
-        int nSize,
-        string lpFileName);
-
-        [DllImport("kernel32.dll")]
-        private static extern int WritePrivateProfileString(
-        string lpApplicationName,
-        string lpKeyName,
-        string lpstring,
-        string lpFileName);
-
-        string filePath;
-
-        /// <summary>
-        /// ファイル名を指定して初期化します。
-        /// ファイルが存在しない場合は初回書き込み時に作成されます。
-        /// </summary>
-        public IniFile(string filePath)
+        private Boolean SetReg_ProxyEnable(Boolean flag)
         {
-            this.filePath = filePath;
+            const int ProxyEnable = 1;
+            const int ProxyDisable = 0;
+
+            int iProxyEnable = (flag == true) ? ProxyEnable : ProxyDisable;
+
+            Microsoft.Win32.RegistryKey regkey =
+                Microsoft.Win32.Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings", true);
+            regkey.SetValue("ProxyEnable", iProxyEnable, Microsoft.Win32.RegistryValueKind.DWord);
+
+            regkey.Close();
+            return true;
         }
 
-        /// <summary>
-        /// sectionとkeyからiniファイルの設定値を取得、設定します。 
-        /// </summary>
-        /// <returns>指定したsectionとkeyの組合せが無い場合は""が返ります。</returns>
-        public string this[string section, string key]
+        private Boolean SetReg_ProxyServer(String ServerAddr)
         {
-            set
-            {
-                WritePrivateProfileString(section, key, value, filePath);
-            }
-            get
-            {
-                StringBuilder sb = new StringBuilder(256);
-                GetPrivateProfileString(section, key, string.Empty, sb, sb.Capacity, filePath);
-                return sb.ToString();
-            }
+            Microsoft.Win32.RegistryKey regkey =
+                Microsoft.Win32.Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings", true);
+            regkey.SetValue("ProxyServer", ServerAddr, Microsoft.Win32.RegistryValueKind.String);
+
+            regkey.Close();
+            return true;
         }
 
-        /// <summary>
-        /// sectionとkeyからiniファイルの設定値を取得します。
-        /// 指定したsectionとkeyの組合せが無い場合はdefaultvalueで指定した値が返ります。
-        /// </summary>
-        /// <returns>
-        /// 指定したsectionとkeyの組合せが無い場合はdefaultvalueで指定した値が返ります。
-        /// </returns>
-        public string GetValue(string section, string key, string defaultvalue)
+        private Boolean SetReg_ProxyOverride(String Addr)
         {
-            StringBuilder sb = new StringBuilder(256);
-            GetPrivateProfileString(section, key, defaultvalue, sb, sb.Capacity, filePath);
-            return sb.ToString();
+            Microsoft.Win32.RegistryKey regkey =
+                Microsoft.Win32.Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings", true);
+            regkey.SetValue("ProxyOverride", Addr, Microsoft.Win32.RegistryValueKind.String);
+
+            regkey.Close();
+            return true;
         }
+
+        #endregion
+
     }
 }
