@@ -27,7 +27,8 @@ namespace AutoProxy
 
             Debug.WriteLine("[Connected Network SSIDs]");
             string[] SSID = NativeWifi.GetConnectedNetworkSsids().ToArray();
-            Debug.WriteLine(SSID[0]);
+
+            ApplyProxySettingsToSystem(SSID[0]);
 
         }
 
@@ -73,13 +74,7 @@ namespace AutoProxy
             }
         }
 
-        private void ProxyEnable(object sender, EventArgs e) {
-            SetReg_ProxyEnable(true);
-        }
-
-        private void btnProxyDisable_Click(object sender, EventArgs e) {
-            SetReg_ProxyEnable(false);
-        }
+        #region "formProc"
 
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -91,7 +86,15 @@ namespace AutoProxy
         {
             WindowState = FormWindowState.Normal;
             ShowInTaskbar = true;
+            this.Activate();
         }
+
+        private void btnOK_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        #endregion
 
         #region "Functions"
 
@@ -99,6 +102,18 @@ namespace AutoProxy
         {
             ShowInTaskbar = false;
             WindowState = FormWindowState.Minimized;
+        }
+
+        private Boolean ApplyProxySettingsToSystem(String SSID)
+        {
+            Setting s = new Setting(SSID);
+
+            SetReg_ProxyEnable(true);
+            SetReg_ProxyServer(s.sProxyServerAddr + ":" + s.sPort);
+            // SetReg_ProxyOverride();
+            SetReg_ProxyEnable(true);
+
+            return true;
         }
 
         private Boolean SetReg_ProxyEnable(Boolean flag)
@@ -137,5 +152,6 @@ namespace AutoProxy
         }
 
         #endregion
+
     }
 }
