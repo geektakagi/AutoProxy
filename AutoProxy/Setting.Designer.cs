@@ -41,12 +41,12 @@
             this.dgvProxySetting = new System.Windows.Forms.DataGridView();
             this.btnOK = new System.Windows.Forms.Button();
             this.btnCancel = new System.Windows.Forms.Button();
+            this.caution = new System.Windows.Forms.Label();
             this.Enable = new System.Windows.Forms.DataGridViewCheckBoxColumn();
             this.SSID = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.ProxyServerAddress = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Port = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Exception = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.caution = new System.Windows.Forms.Label();
             this.contextMenuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvProxySetting)).BeginInit();
             this.SuspendLayout();
@@ -147,6 +147,16 @@
             this.btnCancel.UseCompatibleTextRendering = true;
             this.btnCancel.UseVisualStyleBackColor = true;
             // 
+            // caution
+            // 
+            this.caution.AutoSize = true;
+            this.caution.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.caution.Location = new System.Drawing.Point(12, 9);
+            this.caution.Name = "caution";
+            this.caution.Size = new System.Drawing.Size(473, 26);
+            this.caution.TabIndex = 9;
+            this.caution.Text = "Do not apply to system until push the OK button";
+            // 
             // Enable
             // 
             this.Enable.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.ColumnHeader;
@@ -177,17 +187,8 @@
             // 
             this.Exception.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
             this.Exception.HeaderText = "Exception(separate by ;)";
+            this.Exception.MinimumWidth = 200;
             this.Exception.Name = "Exception";
-            // 
-            // caution
-            // 
-            this.caution.AutoSize = true;
-            this.caution.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.caution.Location = new System.Drawing.Point(12, 9);
-            this.caution.Name = "caution";
-            this.caution.Size = new System.Drawing.Size(473, 26);
-            this.caution.TabIndex = 9;
-            this.caution.Text = "Do not apply to system until push the OK button";
             // 
             // AutoProxySetting
             // 
@@ -220,12 +221,12 @@
         private System.Windows.Forms.DataGridView dgvProxySetting;
         private System.Windows.Forms.Button btnOK;
         private System.Windows.Forms.Button btnCancel;
+        private System.Windows.Forms.Label caution;
         private System.Windows.Forms.DataGridViewCheckBoxColumn Enable;
         private System.Windows.Forms.DataGridViewTextBoxColumn SSID;
         private System.Windows.Forms.DataGridViewTextBoxColumn ProxyServerAddress;
         private System.Windows.Forms.DataGridViewTextBoxColumn Port;
         private System.Windows.Forms.DataGridViewTextBoxColumn Exception;
-        private System.Windows.Forms.Label caution;
     }
 }
 

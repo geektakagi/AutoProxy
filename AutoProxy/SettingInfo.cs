@@ -63,7 +63,7 @@ namespace AutoProxy
         {
             this.filePath = filePath;
         }
-
+        
         /// <summary>
         /// sectionとkeyからiniファイルの設定値を取得、設定します。 
         /// </summary>

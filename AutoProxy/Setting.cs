@@ -1,14 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
 using System.Diagnostics;
 using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Net.NetworkInformation;
 
 namespace AutoProxy
 {
@@ -19,17 +13,35 @@ namespace AutoProxy
             InitializeComponent();
             InTasktray();
 
-            System.Net.NetworkInformation.NetworkChange.NetworkAvailabilityChanged +=
-                new System.Net.NetworkInformation.NetworkAvailabilityChangedEventHandler(
+            System.Net.NetworkInformation.NetworkChange.NetworkAvailabilityChanged
+                += new System.Net.NetworkInformation.NetworkAvailabilityChangedEventHandler(
                 NetworkChange_NetworkAvailabilityChanged);
+
+            NetworkChange.NetworkAddressChanged += NetworkChange_NetworkAddressChanged;
+            NetworkChange.NetworkAvailabilityChanged += NetworkChange_NetworkAvailabilityChanged;
+            // NetworkInformation.NetworkStatusChanged += OnNetworkStatusChanged;
 
             Debug.Listeners.Add(new TextWriterTraceListener(Console.Out));
 
             Debug.WriteLine("[Connected Network SSIDs]");
             string[] SSID = NativeWifi.GetConnectedNetworkSsids().ToArray();
 
-            ApplyProxySettingsToSystem(SSID[0]);
+            if(SSID.Length != 0)
+            {
+                ApplyProxySettingsToSystem(SSID[0]);
+            } else
+            {
+                Debug.WriteLine("No connection");
+                SetReg_ProxyEnable(false);
+            }
+                        
 
+        }
+
+        private void NetworkChange_NetworkAddressChanged(object sender, EventArgs e)
+        {
+            Debug.Listeners.Add(new TextWriterTraceListener(Console.Out));
+            Debug.WriteLine("Network Status Changed");
         }
 
         protected override void WndProc(ref Message m)
@@ -65,12 +77,18 @@ namespace AutoProxy
                 Debug.Listeners.Add(new TextWriterTraceListener(Console.Out));
 
                 Debug.WriteLine("[Connected Network SSIDs]");
-                NativeWifi.GetConnectedNetworkSsids().ToArray();
+                String[] SSIDs = NativeWifi.GetConnectedNetworkSsids().ToArray();
+                if (ApplyProxySettingsToSystem(SSIDs[0]))
+                {
+                    Debug.WriteLine("Failed Apply Proxy Setting to System.");
+                }
+
             }
 
             else
             {
                 this.Text = "ネットワーク接続が無効になりました。";
+                SetReg_ProxyEnable(false);
             }
         }
 
@@ -108,7 +126,6 @@ namespace AutoProxy
         {
             SettingInfo s = new SettingInfo(SSID);
 
-            SetReg_ProxyEnable(true);
             SetReg_ProxyServer(s.sProxyServerAddr + ":" + s.sPort);
             // SetReg_ProxyOverride();
             SetReg_ProxyEnable(true);
