@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Windows.Forms;
 using System.Net.NetworkInformation;
+using System.Xml;
 
 namespace AutoProxy
 {
@@ -12,10 +13,6 @@ namespace AutoProxy
         public AutoProxySetting() {
             InitializeComponent();
             InTasktray();
-
-            System.Net.NetworkInformation.NetworkChange.NetworkAvailabilityChanged
-                += new System.Net.NetworkInformation.NetworkAvailabilityChangedEventHandler(
-                NetworkChange_NetworkAvailabilityChanged);
 
             NetworkChange.NetworkAddressChanged += NetworkChange_NetworkAddressChanged;
             NetworkChange.NetworkAvailabilityChanged += NetworkChange_NetworkAvailabilityChanged;
@@ -78,7 +75,7 @@ namespace AutoProxy
 
                 Debug.WriteLine("[Connected Network SSIDs]");
                 String[] SSIDs = NativeWifi.GetConnectedNetworkSsids().ToArray();
-                if (ApplyProxySettingsToSystem(SSIDs[0]))
+                if (!ApplyProxySettingsToSystem(SSIDs[0]))
                 {
                     Debug.WriteLine("Failed Apply Proxy Setting to System.");
                 }
@@ -145,6 +142,7 @@ namespace AutoProxy
             regkey.SetValue("ProxyEnable", iProxyEnable, Microsoft.Win32.RegistryValueKind.DWord);
 
             regkey.Close();
+            Debug.WriteLine(System.Reflection.MethodBase.GetCurrentMethod().Name + "Set:" + flag);
             return true;
         }
 
@@ -155,6 +153,7 @@ namespace AutoProxy
             regkey.SetValue("ProxyServer", ServerAddr, Microsoft.Win32.RegistryValueKind.String);
 
             regkey.Close();
+            Debug.WriteLine(System.Reflection.MethodBase.GetCurrentMethod().Name + "Set:" + ServerAddr);
             return true;
         }
 
@@ -165,6 +164,7 @@ namespace AutoProxy
             regkey.SetValue("ProxyOverride", Addr, Microsoft.Win32.RegistryValueKind.String);
 
             regkey.Close();
+            Debug.WriteLine(System.Reflection.MethodBase.GetCurrentMethod().Name + "Set:" + Addr);
             return true;
         }
 
