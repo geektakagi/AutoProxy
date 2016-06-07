@@ -10,37 +10,47 @@ namespace AutoProxy
 {
     class SettingInfo
     {
-        public string sSSID = "";
-        public string sProxyServerAddr = "";
-        public string sPort = "";
+        public String   sSSID = "";
+        public String   sProxyServerAddr = "";
+        public String   sPort = "80";
 
-        public SettingInfo(string SSID) {
+        public SettingInfo(String SSID) {
             XmlDocument myXmlDocument = new XmlDocument();
             try {                
-                myXmlDocument.Load(@"C:\\Users\Kosuke\Source\Repos\AutoProxy\AutoProxy\proxys.xml");
+                myXmlDocument.Load(@"proxys.xml");
+
+                String sNodeKey = @"//SSID[@ssid='" + SSID + "']";
+                XmlNodeList NodeList = myXmlDocument.SelectNodes(sNodeKey);
+
+                if (NodeList != null) {
+                    for (int i = 0; i < NodeList.Count; i++) {
+                        sNodeKey = @"//SSID[@ssid='" + SSID + "']/name";
+                        NodeList = myXmlDocument.SelectNodes(sNodeKey);
+                        sSSID = NodeList[0].InnerText;
+                        Debug.WriteLine("SettingInfo LoadedSetting sSSID:" + NodeList[0].InnerText);
+
+                        sNodeKey = @"//SSID[@ssid='" + SSID + "']/proxy";
+                        NodeList = myXmlDocument.SelectNodes(sNodeKey);
+                        sProxyServerAddr = NodeList[0].InnerText;
+                        Debug.WriteLine("SettingInfo LoadedSetting sProxyServerAddr:" + NodeList[0].InnerText);
+
+                        sNodeKey = @"//SSID[@ssid='" + SSID + "']/port";
+                        NodeList = myXmlDocument.SelectNodes(sNodeKey);
+                        sPort = NodeList[0].InnerText;
+                        Debug.WriteLine("SettingInfo LoadedSetting sPort:" + NodeList[0].InnerText);
+                    }
+                }
             }
             catch (Exception) {
                 Debug.WriteLine("xml file load error.");
                 throw;
             }
 
-            string sNodeKey = @"//SSID[@ssid='" + SSID + "']/name";
-            // sNodeKey = @"//SSID[@ssid='iZb4q@e-dot1x']/name";
-            XmlNodeList NodeList = myXmlDocument.SelectNodes(sNodeKey);
-            if (NodeList != null)
-            {
-                sSSID = SSID;             
+            
+        }
 
-                Debug.WriteLine(NodeList.Count.ToString()); // 取得したノード数を出力
-                for (int i = 0; i < NodeList.Count; i++)
-                {
-                    Debug.WriteLine(NodeList[i].InnerXml);  // 取得したノードの内容を出力
-                }
-            }
-            else {
-
-            }
-
+        public Boolean WriteSetting(String sKey, String sValue) {
+            return true;
         }
     }
 }

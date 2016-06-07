@@ -16,18 +16,15 @@ namespace AutoProxy
 
             NetworkChange.NetworkAddressChanged += NetworkChange_NetworkAddressChanged;
             NetworkChange.NetworkAvailabilityChanged += NetworkChange_NetworkAvailabilityChanged;
-            // NetworkInformation.NetworkStatusChanged += OnNetworkStatusChanged;
-
+            
             Debug.Listeners.Add(new TextWriterTraceListener(Console.Out));
 
-            Debug.WriteLine("[Connected Network SSIDs]");
-            string[] SSID = NativeWifi.GetConnectedNetworkSsids().ToArray();
-
-            if(SSID.Length != 0)
-            {
-                ApplyProxySettingsToSystem(SSID[0]);
-            } else
-            {
+            String[] SSIDs = NativeWifi.GetConnectedNetworkSsids().ToArray();
+            if(SSIDs.Length != 0) {
+                Debug.WriteLine("[Connected Network SSID]" +SSIDs[0]);
+                ApplyProxySettingsToSystem(SSIDs[0]);
+            }
+            else {
                 Debug.WriteLine("No connection");
                 SetReg_ProxyEnable(false);
             }
@@ -35,10 +32,13 @@ namespace AutoProxy
 
         }
 
-        private void NetworkChange_NetworkAddressChanged(object sender, EventArgs e)
-        {
-            Debug.Listeners.Add(new TextWriterTraceListener(Console.Out));
+        private void NetworkChange_NetworkAddressChanged(object sender, EventArgs e) {
+            String[] SSIDs = NativeWifi.GetConnectedNetworkSsids().ToArray();
             Debug.WriteLine("Network Status Changed");
+
+            if (SSIDs.Length != 0) {
+                ApplyProxySettingsToSystem(SSIDs[0]);
+            }
         }
 
         protected override void WndProc(ref Message m)
@@ -58,33 +58,29 @@ namespace AutoProxy
             object sender, System.Net.NetworkInformation.NetworkAvailabilityEventArgs e)
         {
             //Invokeが必要か確認し、必要であればInvokeを呼び出す
-            if (this.InvokeRequired)
-            {
+            if (this.InvokeRequired) {
                 System.Net.NetworkInformation.NetworkAvailabilityChangedEventHandler dlgt =
                     new System.Net.NetworkInformation.NetworkAvailabilityChangedEventHandler(
                         NetworkChange_NetworkAvailabilityChanged);
+
                 this.Invoke(dlgt, new object[] { sender, e });
                 return;
             }
 
-            if (e.IsAvailable)
-            {
-                this.Text = "ネットワーク接続が有効になりました。";
+            if (e.IsAvailable) {
+                this.Text = "ネットワーク接続が有効";              
 
-                Debug.Listeners.Add(new TextWriterTraceListener(Console.Out));
-
-                Debug.WriteLine("[Connected Network SSIDs]");
                 String[] SSIDs = NativeWifi.GetConnectedNetworkSsids().ToArray();
-                if (!ApplyProxySettingsToSystem(SSIDs[0]))
-                {
+                Debug.WriteLine("Connected Network SSID:" + SSIDs[0]);
+                if (!ApplyProxySettingsToSystem(SSIDs[0])) {
                     Debug.WriteLine("Failed Apply Proxy Setting to System.");
                 }
 
             }
 
-            else
-            {
-                this.Text = "ネットワーク接続が無効になりました。";
+            else {
+                this.Text = "ネットワーク接続が無効";
+                Debug.WriteLine("Disabled Network");
                 SetReg_ProxyEnable(false);
             }
         }
@@ -93,7 +89,7 @@ namespace AutoProxy
 
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            notifyIcon1.Visible = false;
+            notifyIcon.Visible = false;
             Application.Exit();
         }
 
@@ -106,7 +102,13 @@ namespace AutoProxy
 
         private void btnOK_Click(object sender, EventArgs e)
         {
+            String[] SSIDs = NativeWifi.GetConnectedNetworkSsids().ToArray();
+            Debug.WriteLine("OK clicked. Apply Settings.");
+            if (SSIDs.Length != 0) {
+                ApplyProxySettingsToSystem(SSIDs[0]);
+            }
 
+            InTasktray();
         }
 
         #endregion
@@ -123,10 +125,16 @@ namespace AutoProxy
         {
             SettingInfo s = new SettingInfo(SSID);
 
-            SetReg_ProxyServer(s.sProxyServerAddr + ":" + s.sPort);
-            // SetReg_ProxyOverride();
-            SetReg_ProxyEnable(true);
-
+            if ( s.sProxyServerAddr != "" )
+            {
+                SetReg_ProxyServer(s.sProxyServerAddr + ":" + s.sPort);
+                // SetReg_ProxyOverride();
+                SetReg_ProxyEnable(true);
+            }
+            else
+            {
+                SetReg_ProxyEnable(false);
+            }
             return true;
         }
 
