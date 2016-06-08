@@ -28,8 +28,13 @@ namespace AutoProxy
                 Debug.WriteLine("No connection");
                 SetReg_ProxyEnable(false);
             }
-                        
 
+            SetSettingInfoToDGV();                        
+
+        }
+
+        private void SetSettingInfoToDGV() {
+            
         }
 
         private void NetworkChange_NetworkAddressChanged(object sender, EventArgs e) {

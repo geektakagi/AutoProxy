@@ -5,4 +5,9 @@
     <proxy>202.18.172.35</proxy>
     <port>80</port>
   </SSID>
+  <SSID ssid="iZb4q@e">
+    <name>iZb4q@e</name>
+    <proxy>202.18.172.35</proxy>
+    <port>80</port>
+  </SSID>
 </proxys>

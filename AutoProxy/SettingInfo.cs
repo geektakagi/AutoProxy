@@ -6,13 +6,21 @@ using System.Threading.Tasks;
 using System.Diagnostics;
 using System.Xml;
 
-namespace AutoProxy
-{
-    class SettingInfo
-    {
+namespace AutoProxy {
+    class SettingInfo {     
         public String   sSSID = "";
         public String   sProxyServerAddr = "";
         public String   sPort = "80";
+
+        public enum SettingKeys {
+            name
+            , proxy
+            , port
+        }
+
+        public SettingInfo() {
+
+        }
 
         public SettingInfo(String SSID) {
             XmlDocument myXmlDocument = new XmlDocument();
@@ -44,12 +52,10 @@ namespace AutoProxy
             catch (Exception) {
                 Debug.WriteLine("xml file load error.");
                 throw;
-            }
-
-            
+            }            
         }
 
-        public Boolean WriteSetting(String sKey, String sValue) {
+        public Boolean WriteSetting(SettingKeys Key, String sValue) {
             return true;
         }
     }
