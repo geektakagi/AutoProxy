@@ -8,9 +8,9 @@ using System.Xml;
 
 namespace AutoProxy {
     class SettingInfo {     
-        public String   sSSID = "";
-        public String   sProxyServerAddr = "";
-        public String   sPort = "80";
+        public String   SSID = "";
+        public String   ProxyServerAddr = "";
+        public String   Port = "80";
 
         public enum SettingKeys {
             name
@@ -34,18 +34,18 @@ namespace AutoProxy {
                     for (int i = 0; i < NodeList.Count; i++) {
                         sNodeKey = @"//SSID[@ssid='" + SSID + "']/name";
                         NodeList = myXmlDocument.SelectNodes(sNodeKey);
-                        sSSID = NodeList[0].InnerText;
-                        Debug.WriteLine("SettingInfo LoadedSetting sSSID:" + NodeList[0].InnerText);
+                        SSID = NodeList[0].InnerText;
+                        Debug.WriteLine("SettingInfo LoadedSetting SSID:" + NodeList[0].InnerText);
 
                         sNodeKey = @"//SSID[@ssid='" + SSID + "']/proxy";
                         NodeList = myXmlDocument.SelectNodes(sNodeKey);
-                        sProxyServerAddr = NodeList[0].InnerText;
-                        Debug.WriteLine("SettingInfo LoadedSetting sProxyServerAddr:" + NodeList[0].InnerText);
+                        ProxyServerAddr = NodeList[0].InnerText;
+                        Debug.WriteLine("SettingInfo LoadedSetting ProxyServerAddr:" + NodeList[0].InnerText);
 
                         sNodeKey = @"//SSID[@ssid='" + SSID + "']/port";
                         NodeList = myXmlDocument.SelectNodes(sNodeKey);
-                        sPort = NodeList[0].InnerText;
-                        Debug.WriteLine("SettingInfo LoadedSetting sPort:" + NodeList[0].InnerText);
+                        Port = NodeList[0].InnerText;
+                        Debug.WriteLine("SettingInfo LoadedSetting Port:" + NodeList[0].InnerText);
                     }
                 }
             }

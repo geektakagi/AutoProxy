@@ -29,12 +29,31 @@ namespace AutoProxy
                 SetReg_ProxyEnable(false);
             }
 
+            InitStartupCheckBox();
             SetSettingInfoToDGV();                        
 
         }
 
         private void SetSettingInfoToDGV() {
             
+        }
+
+        private void InitStartupCheckBox() {
+            Microsoft.Win32.RegistryKey regkey =
+                Microsoft.Win32.Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Run", false);
+            if (regkey != null) {
+                if ("null" != (string)regkey.GetValue(Application.ProductName, "null")) {
+                    StartUpEnable.Checked = true;
+                }
+                else {
+                    StartUpEnable.Checked = false;
+                }
+            }
+            else {
+                StartUpEnable.Checked = false;
+            }
+            //閉じる
+            regkey.Close();
         }
 
         private void NetworkChange_NetworkAddressChanged(object sender, EventArgs e) {
@@ -130,9 +149,9 @@ namespace AutoProxy
         {
             SettingInfo s = new SettingInfo(SSID);
 
-            if ( s.sProxyServerAddr != "" )
+            if ( s.ProxyServerAddr != "" )
             {
-                SetReg_ProxyServer(s.sProxyServerAddr + ":" + s.sPort);
+                SetReg_ProxyServer(s.ProxyServerAddr + ":" + s.Port);
                 // SetReg_ProxyOverride();
                 SetReg_ProxyEnable(true);
             }
@@ -148,11 +167,11 @@ namespace AutoProxy
             const int ProxyEnable = 1;
             const int ProxyDisable = 0;
 
-            int iProxyEnable = (flag == true) ? ProxyEnable : ProxyDisable;
+            int proxyEnableOrFalse = (flag == true) ? ProxyEnable : ProxyDisable;
 
             Microsoft.Win32.RegistryKey regkey =
                 Microsoft.Win32.Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings", true);
-            regkey.SetValue("ProxyEnable", iProxyEnable, Microsoft.Win32.RegistryValueKind.DWord);
+            regkey.SetValue("ProxyEnable", proxyEnableOrFalse, Microsoft.Win32.RegistryValueKind.DWord);
 
             regkey.Close();
             Debug.WriteLine(System.Reflection.MethodBase.GetCurrentMethod().Name + "Set:" + flag);
@@ -170,7 +189,7 @@ namespace AutoProxy
             return true;
         }
 
-        private Boolean SetReg_ProxyOverride(String Addr)
+        private void SetReg_ProxyOverride(String Addr)
         {
             Microsoft.Win32.RegistryKey regkey =
                 Microsoft.Win32.Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings", true);
@@ -178,10 +197,29 @@ namespace AutoProxy
 
             regkey.Close();
             Debug.WriteLine(System.Reflection.MethodBase.GetCurrentMethod().Name + "Set:" + Addr);
-            return true;
+        }
+
+        private void SetReg_WindowsStartUp(Boolean enableFlag) {
+            Microsoft.Win32.RegistryKey regkey =
+                Microsoft.Win32.Registry.CurrentUser.OpenSubKey(
+                @"Software\Microsoft\Windows\CurrentVersion\Run", true);
+
+            if (false == enableFlag) {
+                regkey.DeleteValue(Application.ProductName);
+                Debug.WriteLine(System.Reflection.MethodBase.GetCurrentMethod().Name + ": Delete key");
+            }
+            else {                
+                regkey.SetValue(Application.ProductName, Application.ExecutablePath);
+                Debug.WriteLine(System.Reflection.MethodBase.GetCurrentMethod().Name + "Set:" + enableFlag);                
+            }
+            regkey.Close();
+
         }
 
         #endregion
 
+        private void StartUpEnable_CheckedChanged(object sender, EventArgs e) {
+            SetReg_WindowsStartUp(StartUpEnable.Checked);
+        }
     }
 }

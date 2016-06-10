@@ -47,6 +47,7 @@
             this.btnOK = new System.Windows.Forms.Button();
             this.btnCancel = new System.Windows.Forms.Button();
             this.caution = new System.Windows.Forms.Label();
+            this.StartUpEnable = new System.Windows.Forms.CheckBox();
             this.contextMenuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvProxySetting)).BeginInit();
             this.SuspendLayout();
@@ -60,12 +61,12 @@
             this.toolStripSeparator1,
             this.exitToolStripMenuItem});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(212, 133);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(181, 100);
             // 
             // settingToolStripMenuItem
             // 
             this.settingToolStripMenuItem.Name = "settingToolStripMenuItem";
-            this.settingToolStripMenuItem.Size = new System.Drawing.Size(211, 30);
+            this.settingToolStripMenuItem.Size = new System.Drawing.Size(180, 30);
             this.settingToolStripMenuItem.Text = "Setting";
             this.settingToolStripMenuItem.Click += new System.EventHandler(this.settingToolStripMenuItem_Click);
             // 
@@ -75,7 +76,7 @@
             this.enableToolStripMenuItem,
             this.disableToolStripMenuItem});
             this.autoProxyToolStripMenuItem.Name = "autoProxyToolStripMenuItem";
-            this.autoProxyToolStripMenuItem.Size = new System.Drawing.Size(211, 30);
+            this.autoProxyToolStripMenuItem.Size = new System.Drawing.Size(180, 30);
             this.autoProxyToolStripMenuItem.Text = "AutoProxy";
             // 
             // enableToolStripMenuItem
@@ -93,12 +94,12 @@
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(208, 6);
+            this.toolStripSeparator1.Size = new System.Drawing.Size(177, 6);
             // 
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(211, 30);
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(180, 30);
             this.exitToolStripMenuItem.Text = "Exit";
             this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
             // 
@@ -190,11 +191,23 @@
             this.caution.TabIndex = 9;
             this.caution.Text = "Do not apply to system until push the OK button";
             // 
+            // StartUpEnable
+            // 
+            this.StartUpEnable.AutoSize = true;
+            this.StartUpEnable.Location = new System.Drawing.Point(511, 18);
+            this.StartUpEnable.Name = "StartUpEnable";
+            this.StartUpEnable.Size = new System.Drawing.Size(255, 24);
+            this.StartUpEnable.TabIndex = 10;
+            this.StartUpEnable.Text = "registration in Windows Startup";
+            this.StartUpEnable.UseVisualStyleBackColor = true;
+            this.StartUpEnable.CheckedChanged += new System.EventHandler(this.StartUpEnable_CheckedChanged);
+            // 
             // AutoProxySetting
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(778, 544);
+            this.Controls.Add(this.StartUpEnable);
             this.Controls.Add(this.caution);
             this.Controls.Add(this.btnCancel);
             this.Controls.Add(this.btnOK);
@@ -227,6 +240,7 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn ProxyServerAddress;
         private System.Windows.Forms.DataGridViewTextBoxColumn Port;
         private System.Windows.Forms.DataGridViewTextBoxColumn Exception;
+        private System.Windows.Forms.CheckBox StartUpEnable;
     }
 }
 
